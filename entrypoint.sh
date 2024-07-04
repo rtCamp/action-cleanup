@@ -7,11 +7,10 @@ set -e # fail on error
 shopt -s dotglob
 echo "Cleaning up Workspace directory."
 rm -rf *
-chown -R actions:actions .
 
 # Cleanup home directory
 echo "Cleaning up home directory."
-[[ -d "$HOME" ]] && cd "$HOME" && rm -rf * && chown -R actions:actions .
+[[ -d "$HOME" ]] && cd "$HOME" && rm -rf *
 
 # Cleanup event json
 echo "Cleaning up event.json."
