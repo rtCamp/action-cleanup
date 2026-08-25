@@ -2,7 +2,7 @@
 
 **Client:** Sasol Chemicals
 **Industry:** Chemicals & Manufacturing
-**Services:** Platform migration, custom WordPress VIP theme & plugin development, AI-assisted content migration, enterprise SSO, multilingual publishing
+**Services:** Platform migration, custom WordPress VIP theme & plugin development, GraphQL-based content migration, enterprise SSO, multilingual publishing
 **Site:** chemicals.sasol.com
 
 ---
@@ -37,43 +37,43 @@ Underneath all three was a harder constraint: this had to be an **auditable, inc
 
 ## The Approach
 
-rtCamp built a custom FSE (Full Site Editing) block theme on Tailwind CSS, purpose-fit to WordPress VIP, and reconstructed Sasol's component library as native Gutenberg blocks rather than reaching for a page-builder. Content migration was run as an AI-assisted pipeline: a script pulled structured content directly from Sitecore's GraphQL Layout Service, mapped it against a field-mapping sheet (co-maintained by the team and an AI drafting pass), and wrote it into the new WordPress content model in repeatable, verifiable passes — with every pass diffed against the live site rather than trusted blindly.
+rtCamp built a custom FSE (Full Site Editing) block theme on Tailwind CSS, purpose-fit to WordPress VIP, and reconstructed Sasol's component library as native Gutenberg blocks rather than reaching for a page-builder. Content migration ran as a purpose-built extraction pipeline against Sitecore's GraphQL Layout Service, feeding a field-mapping spec that was reconciled against the live site on every pass, and writing into the new WordPress content model in repeatable, verifiable batches rather than a single cutover.
 
 Three of Sasol's legacy Sitecore "Multilist" components (used for Applications, Products and Featured content) were manually curated by editors, with hand-picked ordering. Rebuilding these as an automatic, CPT-and-taxonomy-driven **Feature Cards** block was a deliberate content-modeling decision, not a mechanical migration step — one made jointly with the client after weighing editorial control against long-term maintainability.
 
 ## Challenges We Solved
 
-This project's real difficulty wasn't the theme or the blocks — both teams had done that before. It was the handful of places where legacy-system nuance, AI-assisted tooling, and enterprise security requirements collided, and where a wrong call would have been expensive to unwind after launch.
+The theme and the blocks weren't the hard part — both teams had built those before. The real difficulty sat in a handful of structural places where Sitecore and WordPress simply model content differently, and something has to give. These aren't Sasol-specific mishaps; they're the gaps **any** Sitecore-to-WordPress migration runs into. Here's what closing them looked like in practice.
 
-### 1. When the AI-drafted mapping sheet hallucinated a rule
+### 1. There's no database export to start from
 
-The Sitecore-to-WordPress field mapping was too large to build entirely by hand, so the team used an AI pass to draft the initial mapping sheet and refined it against real content on every migration run. Partway through migration, QA caught industry and application pages consistently rendering a "glass" hero variant instead of the default one. The root cause: the AI-drafted mapping sheet contained a rule stating hero variants for those post types should *always* use the glass effect — a plausible-sounding instruction that had no basis in the actual Sitecore data or client requirement. It was a hallucination baked into what looked like a legitimate field note.
+Sitecore doesn't hand a migrating team a portable database dump the way many legacy CMSs do. Content lives inside a proprietary item tree, reachable only through Sitecore's own services. For Sasol, that meant building extraction directly against the Content/Layout Service's **GraphQL API** — passing the site's context id to pull each item's fields, layout, and datasource references — and turning that into a structured feed the WordPress side could ingest.
 
-The fix was procedural as much as technical: the team stopped treating the mapping sheet as a fixed spec and instead re-verified and revised it on *every* migration pass against the live site, rather than trusting it once and reusing it. It's a pattern worth calling out explicitly for any migration that leans on AI-assisted mapping — the tooling accelerates the work, but the source of truth stays the legacy system, not the sheet describing it.
+That's less a one-time import than a purpose-built ETL pipeline, one that has to be re-run every time content changes on the source side. It shaped the whole migration cadence: content came over in repeatable, verifiable passes rather than a single cutover moment.
 
-### 2. A migration pass that was quietly reading from the wrong environment
+### 2. Sitecore components don't map onto Gutenberg blocks
 
-Midway through migration, the team noticed several pages missing YouTube embeds that were clearly present in the exported data. Investigation traced it to the GraphQL credentials used for extraction — they resolved to Sasol's **development** Sitecore instance, not production, so an entire pass had silently migrated dev content believing it was live content. Once identified, the extraction was pointed at the correct production context and re-run, and a lightweight verification script was added to cross-check migrated output against the live frontend on subsequent passes, rather than relying on visual QA alone to catch environment drift.
+A Sitecore page isn't one blob of content — it's assembled from sublayouts and renderings, each pointing at a datasource item and carrying its own variant fields (a hero can render "default" or "glass," for instance). WordPress has no equivalent concept out of the box. Every one of Sasol's renderings had to be rebuilt as a native Gutenberg block with its own attributes, and the field-level mapping between the two — which Sitecore field feeds which block attribute, under which variant — took real back-and-forth: hero variants, section alignment, a media-and-text layout with reversed element order, tab sections that needed to hold more than just tables.
 
-### 3. Trading manual curation for automated content, deliberately
+None of that is a bug in either platform. It's two component models that don't share a vocabulary, and someone has to build the dictionary by hand, field by field.
 
-Sitecore's Applications and Products lists were hand-curated by editors — specific items, in a specific order, sometimes deliberately excluding entries that would otherwise qualify. Rebuilding these as an automatic CPT/taxonomy query (the new Feature Cards block) meant the output would no longer exactly match the legacy site: all qualifying items would appear, in query order, not the editor's curated subset. Rather than quietly shipping a behavior change, the team flagged the tradeoff to the client explicitly, agreed to proceed with automatic queries for long-term maintainability, and set up a sync-up path to review any cases where the automated output diverged meaningfully from what editors expected to see live.
+### 3. Hand-picked relationships have no ready equivalent
 
-### 4. Building enterprise SSO across three environments without weakening it anywhere
+Several of Sasol's Sitecore templates used **Multilist** fields — letting an editor manually select and order related items directly on a page (which Applications show under an Industry, which Products show under an Application, which articles appear in a Featured section). WordPress has no built-in counterpart; relationships there are normally resolved by querying a post type or taxonomy, not by hand-picking items into a field.
 
-The client's security requirement was strict: Microsoft Entra ID (Azure AD) SAML 2.0 SSO for both the WordPress admin and the WP VIP dashboard, replicated identically across Development, Pre-Production and Production, with WordPress's native login disabled outright rather than left as a fallback. That single requirement fanned out into a cluster of interdependent pieces: a custom login screen, Entra ID role mapping into WordPress roles, enforced single-concurrent-session, configurable session timeouts, and authentication-attempt logging — each of which had to work identically in all three environments or the weakest one would become the actual attack surface.
+That forced an explicit decision per content type: build a relationship field to preserve manual curation, or move to an automatic, taxonomy-driven query and accept a different — usually broader, differently ordered — result. For Sasol, the team moved to automatic queries for long-term editorial maintainability, but only after making the tradeoff explicit and confirming it with the client rather than treating it as a migration detail.
 
-The team evaluated buying versus building parts of this (assessing miniOrange's enterprise SSO plan, including its session-management and login-audit add-ons, against a custom implementation) and made the build-vs-buy call per capability rather than all-or-nothing, based on what needed to be tightly integrated with the site's own role logic versus what a proven third-party plugin already handled well. Admin access itself was further locked down behind a VPN and IP allowlisting per environment, layered on top of SSO rather than instead of it.
+### 4. Enterprise SSO isn't something WordPress ships with
 
-### 5. Re-engineering the translation workflow around new editorial roles, mid-project
+Sitecore deployments at this scale are almost always wired into an organization's identity provider; WordPress, by default, isn't — its native login is a username-and-password form with no SAML or enterprise-SSO concept built in. Replicating Sasol's Microsoft Entra ID access control meant adding SAML 2.0 SSO, Entra ID role mapping into WordPress capabilities, and a custom login flow to replace — not sit beside — the default one, identically across Dev, Pre-Prod and Production, since any environment left on the old login model becomes the actual way in.
 
-Late in the build, the client introduced two new editorial roles — Content Contributor (can create/edit, cannot publish) and Content Publisher (can also publish and delete any page) — layered on top of the multilingual setup (Polylang Pro with DeepL machine translation for German and Simplified Chinese). That combination raised a genuinely non-obvious question: *when* should automatic translation fire, given that a Contributor's edits to an already-published page can't go live without a Publisher's review?
+The team evaluated buying versus building parts of this (assessing miniOrange's enterprise SSO plan, including its session-management and login-audit add-ons, against a custom implementation) and made the build-vs-buy call per capability rather than all-or-nothing. Admin access itself was further locked down behind a VPN and IP allowlisting per environment, layered on top of SSO. This isn't a Sasol-specific quirk — it's the gap any enterprise migration into WordPress has to close itself, because the platform doesn't assume an enterprise identity provider is already there.
 
-The team worked through the scenarios explicitly with the client rather than guessing at "reasonable" defaults: automatic translation now fires only the *first* time a page is published; every subsequent update — whether made by a Contributor (which forces the page to draft pending review) or a Publisher (which doesn't) — requires an explicit "Initiate Translations" action before it can be republished. That deliberately breaks full automation in favor of giving a human a checkpoint before translated content goes live, which was the actual client priority once the roles were introduced.
+### 5. Sitecore's language versioning has no WordPress counterpart
 
-### 6. Catching a staging-domain leak on launch day itself
+In Sitecore, every item is inherently versioned per language within the same content tree — multilingual is a property of the platform, not something bolted on. WordPress has no native concept of a translated post; it had to be built with Polylang, which links separate posts per language rather than versioning a single item. That meant designing the translation model itself: how a German or Chinese page relates to its English source, when machine translation via DeepL should run, and — once Sasol introduced its own Content Contributor / Content Publisher roles — exactly when a translation regenerates versus waits for a human to trigger it.
 
-Hours after go-live, the client reported missing featured images on a live event page. The root cause was a gap in the production database search-and-replace: a handful of image and settings references — including the site's admin email and general-settings site title — were still pointing at the pre-launch `go-vip.net` staging domain instead of `chemicals.sasol.com`. The team traced, fixed and verified the URL rewrite within the hour, then proactively audited the same class of settings site-wide (site title, admin email, remaining media references) rather than waiting for the client to find the next instance — turning a single reported bug into a full sweep.
+Working through this with the client landed on a clear rule: automatic translation fires only the *first* time a page is published; every later update — from either role — requires an explicit "Initiate Translations" action before it can go back out. That's a content-governance decision, not a plugin setting, and it only exists because WordPress and Sitecore start from different assumptions about what a "page" even is.
 
 ## Tech Stack
 
@@ -83,7 +83,7 @@ Hours after go-live, the client reported missing featured images on a live event
 - **Multilingual:** Polylang Pro + DeepL API (English, German, Simplified Chinese)
 - **Identity & security:** Microsoft Entra ID (SAML 2.0) SSO, custom login flow, role mapping, session controls, auth-attempt logging
 - **Forms:** Gravity Forms integrated with an Azure Function endpoint
-- **Migration:** Custom GraphQL-based extraction from Sitecore's Layout Service, AI-assisted field mapping with human verification, iterative reconciliation passes
+- **Migration:** Custom GraphQL-based extraction from Sitecore's Layout Service (no native database export available), field-by-field component mapping, iterative reconciliation passes
 - **Quality:** Core Web Vitals testing, accessibility compliance testing, structured client UAT tracking
 
 ## How the Team Worked
@@ -92,7 +92,7 @@ Delivery was run with daily async standups (what shipped, what's next, blockers 
 
 ## Result
 
-Sasol Chemicals now runs on a modern, editor-friendly WordPress VIP platform: a component library that mirrors how the marketing team actually thinks about the page instead of a legacy page-builder, enterprise SSO that meets the client's security bar in every environment, and a multilingual publishing workflow editors can run themselves — with automatic machine translation as a starting point, not an unreviewed shortcut. The migration preserved the site's content fidelity through an auditable, AI-assisted-but-human-verified pipeline, and the team's post-launch monitoring caught and closed out the last staging-domain references within hours of going live.
+Sasol Chemicals now runs on a modern, editor-friendly WordPress VIP platform: a component library that mirrors how the marketing team actually thinks about the page instead of a legacy page-builder, enterprise SSO that meets the client's security bar in every environment, and a multilingual publishing workflow editors can run themselves — with automatic machine translation as a starting point, not an unreviewed shortcut. Closing the structural gaps between the two platforms — rather than papering over them — is what let content migrate with its fidelity intact.
 
 > *Client testimonial to be added.*
 
