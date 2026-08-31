@@ -24,7 +24,7 @@ What followed was less a simple CMS migration and more a careful reconstruction 
 |---|---|
 | **Pages migrated** | 320+, zero content lost |
 | **Design system** | 48 legacy components simplified into 20 WordPress blocks |
-| **Languages** | 6 — English, German, Italian, French, Spanish, Chinese |
+| **Languages** | 7 — English, German, Italian, French, Spanish, Slovak, Chinese |
 | **Security headers** | Grade D → Grade A, verified against WordPress's own source code |
 | **Editorial control** | Pages, navigation and settings now managed without a developer |
 
@@ -106,13 +106,13 @@ So the goal wasn't simply to make the new website look like the old one. It was 
 
 ---
 
-## Six languages, without six different workflows
+## The old site couldn't do this at all
 
-Sasol Chemicals operates across markets spanning Europe, North America, Asia and Africa, so the new platform also needed to support the site's international audience.
+Sasol Chemicals operates across markets spanning Europe, North America, Asia and Africa, so the new platform needed to serve an international audience. But multilingual publishing wasn't a feature the migration inherited — the old site didn't support it in this form. It had to be built new, on WordPress, using Polylang Pro paired with DeepL for machine translation.
 
-The WordPress implementation supports six languages: English, German, Italian, French, Spanish and Chinese. Translated content and hreflang relationships were carried across as part of the migration, allowing the multilingual site to continue serving its different markets from the same platform.
+The result is a site that now publishes in seven languages: English, German, Italian, French, Spanish, Slovak and Chinese, with hreflang relationships configured so search engines match each visitor to the right language version.
 
-For the content team, however, the real benefit was less about the technology behind multilingual publishing and more about having it inside the same editorial workflow. Managing content across languages no longer had to introduce another layer of developer dependency.
+For the content team, the real benefit wasn't the translation technology itself — it was having multilingual publishing live inside the same editorial workflow they already use for everything else. Adding a language no longer means adding another layer of developer dependency.
 
 ---
 
@@ -122,7 +122,7 @@ A website migration can be technically successful and still cause problems if vi
 
 Preserving the existing URL structure was therefore one of the requirements from the start. The 320+ page URLs were carried into the new WordPress structure, while 301 redirects were added wherever the new content model required different paths, including structured paths for News and Events.
 
-The team also rebuilt the sitemap structure, maintained translated content and hreflang relationships across the six languages, and submitted the updated sitemap to Google Search Console on launch day.
+The team also rebuilt the sitemap structure, maintained translated content and hreflang relationships across the seven languages, and submitted the updated sitemap to Google Search Console on launch day.
 
 The objective was straightforward: someone following an old link or finding the site through search should still be able to reach the content they were looking for after the migration.
 
@@ -167,7 +167,7 @@ But the most important change isn't a number.
 
 It is what happens when someone on the Sasol Chemicals team wants to change the website.
 
-They can create a page, move sections around, update the navigation or manage site-wide settings without opening a development ticket. They can publish in six languages without having to turn routine editorial work into an engineering task.
+They can create a page, move sections around, update the navigation or manage site-wide settings without opening a development ticket. They can publish in seven languages without having to turn routine editorial work into an engineering task.
 
 The technology underneath the site has changed, but that's not really the story.
 
