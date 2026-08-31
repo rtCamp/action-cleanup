@@ -1,146 +1,177 @@
-# Sasol Chemicals: Sitecore + Next.js to WordPress VIP
+# From Sitecore to WordPress: How Sasol Chemicals Took Back Control of Its Website
 
 **Client:** Sasol Chemicals
-**Industry:** Specialty Chemicals (a division of Sasol Limited, JSE/NYSE: SOL)
 **Site:** chemicals.sasol.com
 **Status:** Live on WordPress VIP
 
 ---
 
-## The Short Version
+A global website shouldn't need a developer every time its content team wants to make a change. But that was increasingly the reality for Sasol Chemicals.
 
-Sasol Chemicals needed its global site off a Sitecore XM Cloud and Next.js stack that had made even small content changes dependent on developers. rtCamp rebuilt chemicals.sasol.com natively in WordPress VIP: every one of its 320+ pages migrated with nothing lost, its design system rebuilt as a block library editors can run themselves, and its security posture raised from a failing grade to a passing one.
+Its global website, chemicals.sasol.com, was running on Sitecore XM Cloud with a Next.js frontend. It was a capable enterprise setup, but over time, routine editorial work had become surprisingly dependent on engineering. Updating content, rearranging sections on a page or changing navigation could mean raising a ticket, waiting for a developer and then waiting for a deployment.
 
-The result: a content team that creates pages, reorders sections, and manages navigation without a developer or a deployment — on a platform whose security claims can be checked line by line against WordPress's own open-source code.
+The problem wasn't that the technology couldn't handle the website. **It was that the people responsible for the website couldn't easily change it themselves.**
 
-- **320+ pages migrated, nothing lost** — checked against a full crawl of the live site, not just the export
-- **48 legacy components → 20 WordPress blocks** — six near-duplicate card designs alone became one flexible block
-- **Security headers: Grade D → Grade A** — verified against WordPress's own source code, not a vendor's word for it
-- **Editors publish in 6 languages themselves** — no developer required
+Sasol Chemicals is the specialty-chemicals division of Sasol Limited (JSE/NYSE: SOL), one of the world's largest integrated energy and chemicals companies. Its website serves buyers, formulators and technical partners across agriculture, adhesives, automotive, mining and personal care — industries where the site itself is a working reference tool, not just a marketing page.
 
-*(The "Technical detail" toggles below are optional reading — everything above and around them is written for a general audience.)*
+So Sasol Chemicals decided to move to WordPress VIP. The brief sounded straightforward: migrate more than 320 pages, preserve the site's URLs and search visibility, rebuild its design system, and give the content team greater control over the platform.
+
+What followed was less a simple CMS migration and more a careful reconstruction of everything the old website knew how to do.
+
+### At a glance
+
+| | |
+|---|---|
+| **Pages migrated** | 320+, zero content lost |
+| **Design system** | 48 legacy components simplified into 20 WordPress blocks |
+| **Languages** | 6 — English, German, Italian, French, Spanish, Chinese |
+| **Security headers** | Grade D → Grade A, verified against WordPress's own source code |
+| **Editorial control** | Pages, navigation and settings now managed without a developer |
 
 ---
 
-## About the Client
+## The plan was simple. The old website wasn't.
 
-Sasol Chemicals is the specialty-chemicals division of Sasol Limited, one of the world's largest integrated energy and chemicals companies. Its site, chemicals.sasol.com, serves buyers, formulators and technical partners across agriculture, adhesives, automotive, mining and personal care, in markets spanning Europe, North America, Asia and Africa.
+On paper, migrating 320+ pages from one CMS to another sounds like an exercise in moving content from A to B. In reality, the old Sitecore website had accumulated years of content, layouts and functionality, and its pages weren't built from one neat collection of content. Different parts of a page could depend on separate records linked together behind the scenes.
 
-## The Challenge
+There was no simple export that WordPress could just understand.
 
-The site ran on Sitecore XM Cloud with a Next.js frontend — a capable enterprise setup, but one where routine content changes had quietly become developer work. Updating a product description, reordering a page's sections, or adding new content usually meant working through Sitecore's data model or shipping a code change. That dependency on engineering for everyday editorial work, more than any single technical shortcoming, is what made the case for moving.
+Before rebuilding anything, the team needed to understand what was actually on the website. They approached the problem from two directions: a custom extraction tool pulled content from Sitecore's Edge GraphQL API, while an automated crawl captured all 320+ live pages and showed how that content actually appeared to visitors.
 
-rtCamp's brief had four parts:
+The two datasets were then compared. That second view of the website became an important part of the migration strategy because it meant the team wasn't relying solely on what the source system claimed to contain.
 
-1. Migrate all 320+ pages without losing content
-2. Preserve the existing URL structure and search rankings
-3. Rebuild the design system so editors could work independently of engineering
-4. Meet the client's enterprise security bar on the new platform
+---
 
-## The Approach: Understand the Old System Before Rebuilding It
+## The first surprise: the export wasn't telling the whole story
 
-None of that was possible without first understanding, in full, exactly how the old site stored and rendered its content — Sitecore doesn't offer an export a new platform can simply read.
+During the migration, the team discovered that the Sitecore extraction was quietly leaving content behind. The API was returning only a limited number of child items by default, without an obvious error to indicate that anything was missing. An export could therefore appear to have completed successfully while still being incomplete.
 
-So the team built its own: a custom tool that queried Sitecore's Edge GraphQL API to pull every content record out of the live environment, paired with an automated crawl of all 320+ live pages to see how that content actually rendered on screen. Together, the two gave a complete picture — **48 distinct component types**, each mapped field by field to its WordPress equivalent in a shared reference spreadsheet before a line of code was written.
+That changed the team's approach. Rather than trusting an export simply because it had finished, they explicitly requested every required child item and used the live-site crawl as an independent check. The two datasets were reconciled before the migration plan was considered complete.
 
-## For the Content Team: Editors Run the Platform Now
+It was a useful lesson for the entire project: **a successful export isn't necessarily the same thing as a complete migration.** The team needed to validate the new site against what visitors could actually see, not just against what the old CMS said it contained.
 
-The technical migration was built around a bigger goal: giving Sasol Chemicals' own team control of the platform after launch, not just of individual pages. rtCamp rebuilt the site's design system as a native WordPress block library — 20 custom blocks covering every page layout the site needs — and used the rebuild to simplify the old system, not just replicate it. Six near-identical Sitecore card layouts, for instance, became a single flexible Feature Cards block with its own controls for layout, shape, column count and content source.
+That approach gave them a much stronger foundation for the work that followed.
 
-Navigation, including the mega-menu, is now managed entirely inside the WordPress Site Editor — no code change or deployment needed to add, reorder or update a menu item. Cookie-consent settings, including the tracking container ID and a policy version number, live on a simple settings page; bumping that version automatically re-prompts returning visitors for consent, site-wide. By launch, the content team could create pages, update content, restructure navigation and manage global settings entirely on their own — work that used to mean a ticket, a developer and a deployment now happens the same day.
+---
 
-## Five Places This Got Genuinely Hard
+## The goal wasn't to recreate Sitecore. It was to simplify it.
 
-None of the difficulty was in the page designs — it was in getting a decade of Sitecore content and behavior to survive the move into a platform that works on fundamentally different assumptions. Here's what that took, in plain terms first, with engineering detail available for anyone who wants it.
+Once the team understood the content, another question emerged: what should the new website actually look like behind the scenes?
 
-### 1. Sitecore and WordPress don't store content the same way
+The existing site had 48 distinct component types. But when the team looked closely at how those components were being used, it became clear that some were essentially different versions of the same idea. Six near-identical card layouts, for example, could be consolidated into one flexible Feature Cards block.
 
-**Plain English:** Sitecore doesn't keep a page's content in one place — it's spread across linked records that only make sense once Sitecore itself reassembles them. There was no way to copy that structure straight into WordPress; every page had to be reconstructed, piece by piece, into something editors could actually work with.
+That meant the migration didn't have to reproduce every piece of the old system exactly as it was. Instead, the team could use the move as an opportunity to simplify the design system and make it more useful for the people who would be managing the site afterwards.
 
-<details>
-<summary>Technical detail</summary>
+The result was 20 flexible WordPress blocks covering the layouts the site actually needed, rather than 48 separate components carried over simply for the sake of technical parity.
 
-Sitecore stores component content as separate datasource items linked to page renderings, so a single page with several sections can depend on several independent records in the content tree — a structure WordPress has no equivalent for. rtCamp built a mapping layer that walked each page's rendering tree, resolved every datasource reference, and converted the result into WordPress block attributes, guided by a master spreadsheet defining how all 48 Sitecore component types translated field by field into their WordPress equivalents before development began.
-</details>
+In other words, the team wasn't just asking, *"How do we move what already exists?"* They were asking, **"What does the content team actually need?"**
 
-### 2. The extraction tool was quietly leaving content behind
+---
 
-**Plain English:** Partway through, the team discovered the tool pulling content out of Sitecore was silently capping how much it retrieved from each page — no error, no warning, just missing content. Catching it meant never trusting the export on its own.
+## The biggest change wasn't visible to visitors
 
-<details>
-<summary>Technical detail</summary>
+For all the technical complexity involved in the migration, the most important outcome was relatively simple: the Sasol Chemicals content team could finally manage the website without depending on developers for everyday changes.
 
-Sitecore's Edge GraphQL API returns only 10 child items per query by default; anything beyond that is omitted without an error. Left unnoticed, that could have carried missing content straight through the migration. The extractor was rewritten to explicitly request every child item, and the parallel crawl of all 320+ live pages served as an independent check — the two datasets were reconciled against each other before migration planning was considered final.
-</details>
+With the new WordPress platform, editors could create pages, rearrange sections, update navigation and manage global settings themselves. Even the mega-menu could be maintained directly in the WordPress Site Editor. Cookie-consent settings were also moved into a straightforward settings interface, allowing the team to manage them without a code change or deployment.
 
-### 3. Imported pages had to survive WordPress's own rules
+The difference is easy to understand. A change that previously might have required a ticket, a developer and a deployment could now be handled directly by the people who owned the content.
 
-**Plain English:** Moving content into WordPress isn't just copying text over — WordPress checks everything it imports against strict internal rules, and two of those rules quietly broke things: one flagged legitimate content as invalid, the other silently deleted text that should have stayed. Both took real debugging to catch before a single page went live.
+**The migration wasn't really about moving from Sitecore to WordPress. It was about moving control from the development team back to the content team.**
 
-<details>
-<summary>Technical detail</summary>
+---
 
-WordPress validates imported block content against each block's registered save function; 22 of Sasol's custom blocks used client-side save functions with no PHP render callback, so the import file needed the exact serialized HTML WordPress expected, not just raw data — rtCamp's custom WXR generator pre-computed that output for all 22 blocks. Separately, feature-card descriptions were vanishing after import: WordPress core's `WP_Block_Type::prepare_attributes_for_render()` strips any attribute not registered in a block's `block.json`, silently deleting the content. The fix moved the description into a typed InnerBlock instead of a plain attribute, which survived both the import and WordPress's attribute-handling pipeline. All 321 posts imported with zero invalid block-content errors.
-</details>
+## Then the new platform started revealing its own challenges
 
-### 4. Interactive features had no framework left to run on
+Of course, moving hundreds of pages into a new CMS isn't simply a matter of getting the content out of the old one. The new platform has its own rules, and some of those rules surfaced only once the imported content was being processed.
 
-**Plain English:** Several features on the old site — the mega-menu, an expandable content gallery, the cookie banner, filterable archives — relied on a JavaScript framework doing the work in the visitor's browser. WordPress doesn't work that way by default, so those interactions had to be rebuilt on a server-rendered foundation without losing any of the original behavior.
+During testing, some custom blocks were being flagged as invalid, while feature-card descriptions were disappearing after import. The underlying content existed, but WordPress wasn't accepting or retaining it in the way the migration expected.
 
-<details>
-<summary>Technical detail</summary>
+The team traced these issues through WordPress's block validation and attribute-handling behaviour and changed how the content was represented in the imported pages. For the feature cards, for example, the description was moved into a typed InnerBlock rather than being treated as a regular attribute.
 
-rtCamp rebuilt the interactive components using the WordPress Interactivity API, with PHP handling content rendering and the Interactivity API managing only browser-side state. For the insight gallery, cards are grouped into rows server-side with one hidden expansion panel pre-rendered per row; the Interactivity API just tracks which row is open, without fetching anything extra. The mega-menu follows the same pattern — every navigation panel renders in PHP, and browser-side code only shows or hides it. The cookie banner was rebuilt with full feature parity plus real improvements: `SameSite=Lax` on consent cookies, proper ARIA dialog semantics, and Escape-key support the original didn't have.
-</details>
+The result was 321 posts imported with zero invalid block-content errors.
 
-### 5. Security compliance needed proof, not a claim
+For a non-technical reader, the important part isn't the specific WordPress function involved. It's what the episode says about the migration itself: problems were being discovered and resolved during the migration process rather than being allowed to become production issues.
 
-**Plain English:** The client's security requirements couldn't be satisfied by a vendor's word that something was secure — they needed evidence anyone could independently check. That meant tracing every claim back to WordPress's own publicly readable code, not a summary of it.
+---
 
-<details>
-<summary>Technical detail</summary>
+## It wasn't just content that had to move
 
-Authentication cookie handling was verified directly in WordPress core's `pluggable.php`, including the Secure flag derived from `is_ssl()` and correct HttpOnly handling. Session management was traced through `WP_Session_Tokens`, which uses 43-character random tokens stored as SHA-256 hashes in user meta, with no `session_start()` or PHPSESSID anywhere in the request lifecycle. Logout was verified through `wp_logout()`, which destroys the active session token and expires the browser's auth cookies.
+The website also contained a number of interactive features that visitors had come to rely on, including the mega-menu, an expandable insight gallery, filterable archives and cookie consent.
 
-The review also surfaced a real improvement over the old site: Sitecore's consent cookies, set via the js-cookie library, had no HttpOnly, Secure or SameSite attributes at all. The WordPress implementation is measurably stronger than what it replaced, not just a like-for-like copy.
-</details>
+Those experiences had been built around the old frontend, so they couldn't simply be copied into WordPress unchanged. The team rebuilt them using WordPress's Interactivity API, keeping the core content server-rendered while using browser-side code only where interaction was actually required.
 
-## Where AI Helped
+The exercise also created opportunities to improve some of the existing behaviour. The cookie banner, for example, was rebuilt with stronger cookie settings and better accessibility, including proper ARIA dialog semantics and Escape-key support.
 
-AI ran through this project as an accelerant for analysis and verification, not a replacement for engineering judgment — the team still made every architectural call, but spent far less time on repetitive groundwork to get there.
+So the goal wasn't simply to make the new website look like the old one. It was to preserve the experience visitors expected while improving it where there was a clear opportunity to do so.
 
-- **Faster discovery.** Sorting through 1,234 extracted content records and a 320-page live crawl by hand would have taken weeks; AI-assisted analysis found the patterns across all 48 component types in days — including the six near-duplicate card designs that became a single WordPress block.
-- **Sharper planning.** More than 40 implementation tickets were drafted with AI assistance, each carrying exact field names and edge cases pulled straight from the live-site crawl — work developers could start from immediately instead of re-deriving it themselves.
-- **Consistent review, on every pull request.** A custom AI review checked each change against WordPress security practices, WP VIP platform rules, accessibility and the project's own conventions, producing a report tied to exact lines of code — replacing a separate manual compliance pass.
-- **Security evidence, verified faster.** AI helped trace every security claim to the exact line of WordPress core source behind it, so the compliance review was based on the real implementation, not documentation.
-- **Bugs found sooner.** When 22 blocks were failing import validation, and again when feature-card content was silently disappearing, AI-assisted debugging traced both to their root cause before they reached a live import.
+---
 
-## SEO & Performance: No Lost Rankings, No Lost Visitors
+## Six languages, without six different workflows
 
-Preserving the search visibility chemicals.sasol.com had already earned was a hard requirement, not a nice-to-have. All 320+ page URLs carried over into the new WordPress structure; where the new content model needed different paths — structured sub-paths for News and Events, for instance — 301 redirects preserved the inbound links pointing at the old ones. Yoast SEO Premium manages sitemaps across all seven content types, and Polylang manages translated content and hreflang tags across six languages: English, German, Italian, French, Spanish and Chinese. The updated sitemap went to Google Search Console on launch day.
+Sasol Chemicals operates across markets spanning Europe, North America, Asia and Africa, so the new platform also needed to support the site's international audience.
 
-*(Before/after Core Web Vitals report — pending.)*
+The WordPress implementation supports six languages: English, German, Italian, French, Spanish and Chinese. Translated content and hreflang relationships were carried across as part of the migration, allowing the multilingual site to continue serving its different markets from the same platform.
 
-## Tech Stack *(reference for technical readers)*
+For the content team, however, the real benefit was less about the technology behind multilingual publishing and more about having it inside the same editorial workflow. Managing content across languages no longer had to introduce another layer of developer dependency.
 
-- **Platform:** WordPress VIP — Git-based deployments, automated PHPCS checks via the VIP Code Analysis Bot, global CDN
-- **Search:** Elasticsearch-powered enterprise search, surfaced through a custom search block with Content Type and Country filters
-- **Content model:** 7 custom post types, 20 purpose-built Gutenberg blocks consolidating 48 legacy component types
-- **Import:** 321 posts imported via WP-CLI from a custom Node.js–generated WXR file with pre-computed block markup
-- **Multilingual:** Polylang — English, German, Italian, French, Spanish, Chinese, with hreflang across all six
-- **Interactivity:** WordPress Interactivity API — mega-menu, insight gallery, cookie consent, filterable archives
-- **Security:** Headers independently verified via securityheaders.com — Grade A at launch, up from Grade D
+---
 
-## Result
+## And then there was the question every migration has to answer: what happens to SEO?
 
-chemicals.sasol.com is live on WordPress VIP, with its full content intact and its search rankings undisturbed. The team that used to wait on developers for routine changes can now make them directly — and every security and compliance claim about the new platform can be checked against WordPress's own open-source code, not taken on faith.
+A website migration can be technically successful and still cause problems if visitors and search engines can't find the content they used to.
 
-- **Editors work independently** — pages, navigation and global settings, no developer or deployment required
-- **Every inbound link and search ranking carried through** — 320+ URLs preserved, redirects in place where paths changed
-- **Security claims are independently checkable** — Grade A headers, verified against WordPress core
-- **Self-service multilingual publishing** — English, German, Italian, French, Spanish and Chinese, entirely inside WordPress
+Preserving the existing URL structure was therefore one of the requirements from the start. The 320+ page URLs were carried into the new WordPress structure, while 301 redirects were added wherever the new content model required different paths, including structured paths for News and Events.
+
+The team also rebuilt the sitemap structure, maintained translated content and hreflang relationships across the six languages, and submitted the updated sitemap to Google Search Console on launch day.
+
+The objective was straightforward: someone following an old link or finding the site through search should still be able to reach the content they were looking for after the migration.
+
+*A before-and-after Core Web Vitals comparison is still being finalized and will be added here once it's ready.*
+
+---
+
+## Security needed more than a promise
+
+The migration also had to meet Sasol Chemicals' enterprise security requirements. Rather than relying solely on platform documentation or a vendor's assurance that the new environment was secure, the team wanted evidence that could be independently checked.
+
+The security review therefore went down to the implementation level, tracing authentication, session management and logout behaviour through WordPress's own source code. That process also highlighted a genuine improvement over the previous site: the old Sitecore implementation's consent cookies lacked several security attributes that were applied in the new WordPress implementation.
+
+At launch, the site's security headers received an **A grade**, compared with **D** previously.
+
+The significance wasn't simply the letter grade. It was that the new platform's security claims could be backed up with evidence rather than taken on faith.
+
+---
+
+## Where AI fitted into the picture
+
+AI also played a role during the project, but not as a substitute for engineering judgment.
+
+The team used AI-assisted analysis to work through more than 1,200 extracted content records and the 320-page crawl, helping identify patterns across the site's 48 component types. AI was also used during code review, security verification and debugging, including investigations into the block-import and disappearing-content issues.
+
+The distinction was important: AI accelerated the repetitive analysis and investigation, while the engineering team remained responsible for the architecture and the decisions about how the new platform should work.
+
+That made AI useful in much the same way as the other tools on the project — as a way to help the team work through a complex migration more efficiently, rather than as a replacement for expertise.
+
+---
 
 > *Client testimonial to be added.*
+> — **[Name, Title], Sasol Chemicals**
+
+---
+
+## The result: a website the content team can actually run
+
+The new chemicals.sasol.com is now live on WordPress VIP, with more than 320 pages migrated and the site's content preserved. The design system was simplified from 48 legacy component types into 20 reusable WordPress blocks, while the site's URLs, redirects and multilingual SEO structure were carried across.
+
+But the most important change isn't a number.
+
+It is what happens when someone on the Sasol Chemicals team wants to change the website.
+
+They can create a page, move sections around, update the navigation or manage site-wide settings without opening a development ticket. They can publish in six languages without having to turn routine editorial work into an engineering task.
+
+The technology underneath the site has changed, but that's not really the story.
+
+**The real transformation was giving the people who run the website the freedom to run it themselves.**
 
 ---
 *Case study prepared by the rtCamp project team from project delivery documentation.*
